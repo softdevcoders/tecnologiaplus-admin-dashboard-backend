@@ -24,7 +24,6 @@
     "migration:run": "npm run typeorm -- migration:run -d src/core/database/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/core/database/data-source.ts",
     "seed": "ts-node src/core/database/seeds/run-seed.ts",
-    "seed:basic": "ts-node src/core/database/seeds/run-basic-seed.ts",
     "db:reset": "ts-node src/core/database/reset-database.ts",
     "db:setup": "npm run db:reset && npm run seed"
   },
