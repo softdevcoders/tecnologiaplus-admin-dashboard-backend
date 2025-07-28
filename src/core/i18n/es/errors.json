@@ -1,0 +1,7 @@
+{
+  "user_not_authenticated": "Usuario no autenticado",
+  "insufficient_role": "Rol insuficiente",
+  "own_record_only": "Solo puedes acceder a tu propio registro",
+  "category_not_found": "Categoría no encontrada",
+  "tag_not_found": "Etiqueta no encontrada"
+} 

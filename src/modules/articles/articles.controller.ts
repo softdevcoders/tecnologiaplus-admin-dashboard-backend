@@ -1,0 +1,395 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  Request,
+  UseGuards,
+  Patch,
+  Query,
+} from '@nestjs/common';
+import { ArticlesService } from '@/modules/articles/articles.service';
+import { Article } from '@/modules/articles/article.entity';
+import { JwtAuthGuard } from '@/modules/auth/jwt-auth.guard';
+import { User, UserRole } from '@/modules/users/user.entity';
+import { RolesGuard } from '@/modules/auth/roles.guard';
+import { ArticleQueryDto } from '@/modules/articles/dto/article-query.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
+import { CreateArticleDto } from '@/modules/articles/dto/create-article.dto';
+import { Roles } from '@/modules/auth/roles.decorator';
+
+@Controller('articles')
+@ApiTags('articles')
+export class ArticlesController {
+  constructor(private readonly articlesService: ArticlesService) {}
+
+  @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get all articles',
+    description: 'Retrieve all articles with pagination and filtering options',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Articles retrieved successfully',
+  })
+  async findAll(@Query() query: ArticleQueryDto) {
+    return this.articlesService.findAll({
+      categoryId: query.category,
+      tagId: query.tag,
+      authorId: query.author,
+      isPublished: query.published,
+      page: query.page,
+      limit: query.limit,
+      sortField: query.sortField,
+      sortOrder: query.sortOrder,
+    });
+  }
+
+  @Get('search')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Search articles',
+    description: 'Search articles by title, content, or description',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Search results',
+  })
+  async search(@Query() query: ArticleQueryDto) {
+    return this.articlesService.findAll({
+      categoryId: query.category,
+      tagId: query.tag,
+      authorId: query.author,
+      isPublished: query.published,
+      page: query.page,
+      limit: query.limit,
+      sortField: query.sortField,
+      sortOrder: query.sortOrder,
+    });
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get article by ID',
+    description:
+      'Retrieve a specific article by its ID with all its relationships (author, category, tags) and metadata.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Article ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Article found',
+    content: {
+      'application/json': {
+        example: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          title: 'Introduction to NestJS',
+          content:
+            '# Getting Started with NestJS\n\nNestJS is a progressive Node.js framework...',
+          slug: 'introduction-to-nestjs',
+          description: 'Learn the basics of NestJS framework',
+          keywords: 'nestjs, nodejs, typescript, backend',
+          coverImage: 'https://example.com/images/nestjs-cover.jpg',
+          isPublished: true,
+          author: {
+            id: '987fcdeb-51d3-a456-b789-012345678901',
+            name: 'John Doe',
+            email: 'john@example.com',
+          },
+          category: {
+            id: 'abc12345-e89b-12d3-a456-426614174000',
+            name: 'Backend Development',
+            slug: 'backend-development',
+          },
+          tags: [
+            { id: 'tag123', name: 'NestJS', slug: 'nestjs' },
+            { id: 'tag456', name: 'TypeScript', slug: 'typescript' },
+          ],
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-02T00:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 404, description: 'Article not found' })
+  findOne(@Param('id') id: string): Promise<Article> {
+    return this.articlesService.findOne(id);
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Create new article',
+    description:
+      'Create a new article. The author will be set automatically based on the authenticated user.',
+  })
+  @ApiBody({
+    type: CreateArticleDto,
+    examples: {
+      draft: {
+        value: {
+          title: 'Introduction to NestJS',
+          content:
+            '# Getting Started with NestJS\n\nNestJS is a progressive Node.js framework...',
+          description: 'Learn the basics of NestJS framework',
+          keywords: 'nestjs, nodejs, typescript, backend',
+          categoryId: 'abc12345-e89b-12d3-a456-426614174000',
+          tagIds: ['tag123', 'tag456'],
+          isPublished: false,
+        },
+        summary: 'Create draft article',
+      },
+      published: {
+        value: {
+          title: 'Advanced TypeScript Features',
+          content: '# TypeScript Advanced Types\n\nIn this article...',
+          slug: 'advanced-typescript-features',
+          description: 'Deep dive into TypeScript advanced types and features',
+          keywords: 'typescript, advanced types, generics, decorators',
+          coverImage: 'https://example.com/images/typescript-cover.jpg',
+          categoryId: 'def67890-e89b-12d3-a456-426614174000',
+          tagIds: ['tag456', 'tag789'],
+          isPublished: true,
+        },
+        summary: 'Create published article',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Article created successfully',
+    content: {
+      'application/json': {
+        example: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          title: 'Introduction to NestJS',
+          content:
+            '# Getting Started with NestJS\n\nNestJS is a progressive Node.js framework...',
+          slug: 'introduction-to-nestjs',
+          description: 'Learn the basics of NestJS framework',
+          keywords: 'nestjs, nodejs, typescript, backend',
+          isPublished: false,
+          author: {
+            id: '987fcdeb-51d3-a456-b789-012345678901',
+            name: 'John Doe',
+            email: 'john@example.com',
+          },
+          category: {
+            id: 'abc12345-e89b-12d3-a456-426614174000',
+            name: 'Backend Development',
+            slug: 'backend-development',
+          },
+          tags: [
+            { id: 'tag123', name: 'NestJS', slug: 'nestjs' },
+            { id: 'tag456', name: 'TypeScript', slug: 'typescript' },
+          ],
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Bad request - invalid data' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
+  create(
+    @Body() data: CreateArticleDto,
+    @Request() req: { user: User },
+  ): Promise<Article> {
+    return this.articlesService.create(data, req.user);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update article',
+    description:
+      'Update an existing article. Only the author or an admin can update the article.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Article ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiBody({
+    type: CreateArticleDto,
+    examples: {
+      updateContent: {
+        value: {
+          title: 'Updated: Introduction to NestJS',
+          content:
+            '# Getting Started with NestJS - Updated\n\nNestJS is a progressive Node.js framework...',
+          description: 'Updated guide to NestJS basics',
+          keywords: 'nestjs, nodejs, typescript, backend, updated',
+          categoryId: 'abc12345-e89b-12d3-a456-426614174000',
+          tagIds: ['tag123', 'tag456', 'tag789'],
+        },
+        summary: 'Update article content',
+      },
+      changeCategory: {
+        value: {
+          categoryId: 'def67890-e89b-12d3-a456-426614174000',
+          tagIds: ['tag456', 'tag789'],
+        },
+        summary: 'Change article category and tags',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Article updated successfully',
+    content: {
+      'application/json': {
+        example: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          title: 'Updated: Introduction to NestJS',
+          content:
+            '# Getting Started with NestJS - Updated\n\nNestJS is a progressive Node.js framework...',
+          slug: 'updated-introduction-to-nestjs',
+          description: 'Updated guide to NestJS basics',
+          keywords: 'nestjs, nodejs, typescript, backend, updated',
+          isPublished: true,
+          author: {
+            id: '987fcdeb-51d3-a456-b789-012345678901',
+            name: 'John Doe',
+          },
+          category: {
+            id: 'abc12345-e89b-12d3-a456-426614174000',
+            name: 'Backend Development',
+            slug: 'backend-development',
+          },
+          tags: [
+            { id: 'tag123', name: 'NestJS', slug: 'nestjs' },
+            { id: 'tag456', name: 'TypeScript', slug: 'typescript' },
+            { id: 'tag789', name: 'Web Development', slug: 'web-development' },
+          ],
+          updatedAt: '2024-01-02T00:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Bad request - invalid data' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - user is not the author or admin',
+  })
+  @ApiResponse({ status: 404, description: 'Article not found' })
+  update(
+    @Param('id') id: string,
+    @Body() data: CreateArticleDto,
+  ): Promise<Article> {
+    return this.articlesService.update(id, data);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Delete article',
+    description:
+      'Soft delete an article. Only administrators can delete articles. The article will be hidden from regular users but still accessible to admins.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Article ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Article deleted successfully',
+    content: {
+      'application/json': {
+        example: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          title: 'Introduction to NestJS',
+          isDeleted: true,
+          deletedAt: '2024-01-03T00:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden - requires admin role' })
+  @ApiResponse({ status: 404, description: 'Article not found' })
+  remove(@Param('id') id: string): Promise<void> {
+    return this.articlesService.remove(id);
+  }
+
+  @Patch(':id/publish')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.EDITOR)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Toggle article publication status',
+    description:
+      'Toggle the publication status of an article between published and unpublished. Only admins and editors can perform this action.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Article ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Article publication status toggled successfully',
+    content: {
+      'application/json': {
+        example: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          title: 'Introduction to NestJS',
+          slug: 'introduction-to-nestjs',
+          isPublished: true,
+          author: {
+            id: '987fcdeb-51d3-a456-b789-012345678901',
+            name: 'John Doe',
+          },
+          category: {
+            id: 'abc12345-e89b-12d3-a456-426614174000',
+            name: 'Backend Development',
+          },
+          updatedAt: '2024-01-02T00:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - requires admin or editor role',
+  })
+  @ApiResponse({ status: 404, description: 'Article not found' })
+  async togglePublish(@Param('id') id: string): Promise<Article> {
+    return this.articlesService.togglePublish(id);
+  }
+}

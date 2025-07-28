@@ -1,0 +1,7 @@
+{
+  "user_not_authenticated": "User not authenticated",
+  "insufficient_role": "Insufficient role",
+  "own_record_only": "You can only access your own record",
+  "category_not_found": "Category not found",
+  "tag_not_found": "Tag not found"
+} 
