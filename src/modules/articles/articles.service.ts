@@ -190,7 +190,9 @@ export class ArticlesService {
     // Buscar tags si se proporcionan tagIds
     let tags: Tag[] = [];
     if (data.tagIds && data.tagIds.length > 0) {
-      tags = await this.tagRepo.findByIds(data.tagIds);
+      tags = await this.tagRepo.find({
+        where: data.tagIds.map(id => ({ id }))
+      });
     }
 
     // Mapear campos del DTO a la entidad
@@ -228,7 +230,9 @@ export class ArticlesService {
 
     // Buscar tags si se proporcionan tagIds
     if (data.tagIds && data.tagIds.length > 0) {
-      const tags = await this.tagRepo.findByIds(data.tagIds);
+      const tags = await this.tagRepo.find({
+        where: data.tagIds.map(id => ({ id }))
+      });
       article.tags = tags;
     }
 

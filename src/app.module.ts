@@ -10,6 +10,7 @@ import { ArticlesModule } from './modules/articles/articles.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { CloudinaryModule } from './core/cloudinary/cloudinary.module';
+import { ImagesModule } from './modules/images/images.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CloudinaryModule } from './core/cloudinary/cloudinary.module';
     CategoriesModule,
     TagsModule,
     CloudinaryModule,
+    ImagesModule,
   ],
   controllers: [],
   providers: [],
