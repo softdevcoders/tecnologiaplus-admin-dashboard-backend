@@ -78,6 +78,15 @@ export class CreateArticleDto {
   @IsString()
   @IsOptional()
   @ApiProperty({
+    description: 'Alt text for the article cover image',
+    required: false,
+    example: 'Imagen principal del artículo sobre NestJS',
+  })
+  coverImageAlt?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
     description: 'JSON string containing URLs of images used in the article',
     required: false,
     example:

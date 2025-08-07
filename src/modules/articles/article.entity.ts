@@ -42,6 +42,9 @@ export class Article {
   @Column({ nullable: false })
   coverImage: string;
 
+  @Column({ nullable: true, length: 500 })
+  coverImageAlt?: string;
+
   @Column('text', { nullable: true })
   images?: string;
 

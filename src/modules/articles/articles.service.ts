@@ -205,6 +205,7 @@ export class ArticlesService {
       metaKeywords: data.metaKeywords,
       metaDescription: data.metaDescription,
       coverImage: data.coverImage,
+      coverImageAlt: data.coverImageAlt,
       images: data.images,
       isPublished: data.isPublished || false,
       author,
@@ -246,6 +247,7 @@ export class ArticlesService {
       metaKeywords: data.metaKeywords,
       metaDescription: data.metaDescription,
       coverImage: data.coverImage,
+      coverImageAlt: data.coverImageAlt,
       images: data.images,
       isPublished: data.isPublished,
     };

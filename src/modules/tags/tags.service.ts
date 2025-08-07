@@ -23,7 +23,20 @@ export class TagsService {
     return tag;
   }
 
-  create(dto: CreateTagDto): Promise<Tag> {
+  async create(dto: CreateTagDto): Promise<Tag> {
+    // Buscar si ya existe un tag con el mismo nombre (ignorando mayúsculas/minúsculas) o slug
+    const existingTag = await this.repo
+      .createQueryBuilder('tag')
+      .where('LOWER(tag.name) = LOWER(:name)', { name: dto.name })
+      .orWhere('tag.slug = :slug', { slug: dto.slug })
+      .getOne();
+
+    if (existingTag) {
+      // Si ya existe, devolver el tag existente
+      return existingTag;
+    }
+
+    // Si no existe, crear uno nuevo
     const tag = this.repo.create(dto);
     return this.repo.save(tag);
   }
