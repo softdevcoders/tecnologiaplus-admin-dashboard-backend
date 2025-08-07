@@ -36,7 +36,16 @@ export class CreateArticleDto {
     required: false,
     example: 'Learn the basics of NestJS framework and its core concepts',
   })
-  description?: string;
+  summary?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'SEO meta title for the article',
+    required: false,
+    example: 'Introduction to NestJS - Complete Guide for Beginners',
+  })
+  metaTitle?: string;
 
   @IsString()
   @IsOptional()
@@ -45,7 +54,17 @@ export class CreateArticleDto {
     required: false,
     example: 'nestjs, nodejs, typescript, web development',
   })
-  keywords?: string;
+  metaKeywords?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'SEO meta description for the article',
+    required: false,
+    example:
+      'Learn the basics of NestJS framework and its core concepts. Complete guide for beginners.',
+  })
+  metaDescription?: string;
 
   @IsString()
   @IsOptional()

@@ -25,24 +25,27 @@ export class Article {
   title: string;
 
   @Column({ nullable: true })
-  summary?: string;
+  summary: string;
+
+  @Column({ nullable: true })
+  metaTitle: string;
 
   @Column('text')
   content: string;
 
-  @Column({ nullable: true })
-  metaKeywords?: string;
+  @Column({ nullable: false })
+  metaKeywords: string;
 
-  @Column({ nullable: true })
-  metaDescription?: string;
+  @Column({ nullable: false })
+  metaDescription: string;
 
-  @Column({ nullable: true })
-  coverImage?: string;
+  @Column({ nullable: false })
+  coverImage: string;
 
   @Column('text', { nullable: true })
   images?: string;
 
-  @Column({ default: true })
+  @Column({ default: false })
   isPublished: boolean;
 
   @Column({ default: false })

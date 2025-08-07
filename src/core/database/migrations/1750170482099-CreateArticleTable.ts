@@ -50,6 +50,11 @@ export class CreateArticleTable1750170482099 implements MigrationInterface {
             isNullable: true,
           },
           {
+            name: 'metaTitle',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
             name: 'coverImage',
             type: 'varchar',
             isNullable: true,

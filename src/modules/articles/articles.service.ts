@@ -3,13 +3,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Article } from '@/modules/articles/article.entity';
 import { User } from '@/modules/users/user.entity';
+import { Category } from '@/modules/categories/category.entity';
+import { Tag } from '@/modules/tags/tag.entity';
 import { SortField, SortOrder } from '@/modules/articles/dto/article-query.dto';
+
+interface CreateArticleData extends Partial<Article> {
+  categoryId?: string;
+  tagIds?: string[];
+}
 
 @Injectable()
 export class ArticlesService {
   constructor(
     @InjectRepository(Article)
     private articleRepo: Repository<Article>,
+    @InjectRepository(Category)
+    private categoryRepo: Repository<Category>,
+    @InjectRepository(Tag)
+    private tagRepo: Repository<Tag>,
   ) {}
 
   async findAll(params: {
@@ -118,7 +129,7 @@ export class ArticlesService {
 
     if (keyword) {
       query.andWhere(
-        '(article.title ILIKE :keyword OR article.content ILIKE :keyword OR article.description ILIKE :keyword)',
+        '(article.title ILIKE :keyword OR article.content ILIKE :keyword OR article.summary ILIKE :keyword)',
         { keyword: `%${keyword}%` },
       );
     }
@@ -166,15 +177,76 @@ export class ArticlesService {
     return article;
   }
 
-  async create(data: Partial<Article>, author: User): Promise<Article> {
-    const article = this.articleRepo.create({ ...data, author });
+  async create(data: CreateArticleData, author: User): Promise<Article> {
+    // Buscar categoría si se proporciona categoryId
+    let category: Category | undefined = undefined;
+    if (data.categoryId) {
+      const foundCategory = await this.categoryRepo.findOne({
+        where: { id: data.categoryId },
+      });
+      category = foundCategory || undefined;
+    }
+
+    // Buscar tags si se proporcionan tagIds
+    let tags: Tag[] = [];
+    if (data.tagIds && data.tagIds.length > 0) {
+      tags = await this.tagRepo.findByIds(data.tagIds);
+    }
+
+    // Mapear campos del DTO a la entidad
+    const articleData = {
+      title: data.title,
+      content: data.content,
+      slug: data.slug,
+      summary: data.summary,
+      metaTitle: data.metaTitle,
+      metaKeywords: data.metaKeywords,
+      metaDescription: data.metaDescription,
+      coverImage: data.coverImage,
+      images: data.images,
+      isPublished: data.isPublished || false,
+      author,
+      category,
+      tags,
+    };
+
+    const article = this.articleRepo.create(articleData);
     return this.articleRepo.save(article);
   }
 
-  async update(id: string, data: Partial<Article>): Promise<Article> {
+  async update(id: string, data: CreateArticleData): Promise<Article> {
     const article = await this.articleRepo.findOne({ where: { id } });
     if (!article) throw new NotFoundException('Article not found');
-    Object.assign(article, data);
+
+    // Buscar categoría si se proporciona categoryId
+    if (data.categoryId) {
+      const foundCategory = await this.categoryRepo.findOne({
+        where: { id: data.categoryId },
+      });
+      article.category = foundCategory || undefined;
+    }
+
+    // Buscar tags si se proporcionan tagIds
+    if (data.tagIds && data.tagIds.length > 0) {
+      const tags = await this.tagRepo.findByIds(data.tagIds);
+      article.tags = tags;
+    }
+
+    // Mapear campos del DTO a la entidad
+    const updateData = {
+      title: data.title,
+      content: data.content,
+      slug: data.slug,
+      summary: data.summary,
+      metaTitle: data.metaTitle,
+      metaKeywords: data.metaKeywords,
+      metaDescription: data.metaDescription,
+      coverImage: data.coverImage,
+      images: data.images,
+      isPublished: data.isPublished,
+    };
+
+    Object.assign(article, updateData);
     return this.articleRepo.save(article);
   }
 

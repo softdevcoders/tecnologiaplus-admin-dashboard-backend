@@ -33,6 +33,7 @@ export class ArticleSeeder {
       summary: article.summary,
       metaKeywords: article.metaKeywords.join(','),
       metaDescription: article.metaDescription,
+      metaTitle: article.metaTitle,
       isPublished: article.isPublished,
       isPublishedInProduction: article.isPublishedInProduction,
       coverImage: article.coverImage || '',
