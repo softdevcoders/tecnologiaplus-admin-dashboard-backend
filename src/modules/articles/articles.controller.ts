@@ -363,12 +363,11 @@ export class ArticlesController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Delete article',
+    summary: 'Eliminar artículo',
     description:
-      'Soft delete an article. Only administrators can delete articles. The article will be hidden from regular users but still accessible to admins.',
+      'Eliminar un artículo (soft delete). Solo administradores o el autor del artículo pueden eliminarlo. El artículo será ocultado pero permanecerá en la base de datos.',
   })
   @ApiParam({
     name: 'id',
@@ -377,7 +376,7 @@ export class ArticlesController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Article deleted successfully',
+    description: 'Artículo eliminado exitosamente',
     content: {
       'application/json': {
         example: {
@@ -393,10 +392,17 @@ export class ArticlesController {
     status: 401,
     description: 'Unauthorized - authentication required',
   })
-  @ApiResponse({ status: 403, description: 'Forbidden - requires admin role' })
+  @ApiResponse({ 
+    status: 403, 
+    description: 'Forbidden - user is not admin or article author' 
+  })
   @ApiResponse({ status: 404, description: 'Article not found' })
-  remove(@Param('id') id: string): Promise<void> {
-    return this.articlesService.remove(id);
+  async remove(
+    @Param('id') id: string,
+    @Request() req: { user: { userId: string; email: string; role: UserRole } },
+  ): Promise<void> {
+    const user = await this.usersService.findOne(req.user.userId);
+    return this.articlesService.remove(id, user);
   }
 
   @Patch(':id/publish')
@@ -404,9 +410,9 @@ export class ArticlesController {
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Toggle article publication status',
+    summary: 'Publicar artículo',
     description:
-      'Toggle the publication status of an article between published and unpublished. Only admins and editors can perform this action.',
+      'Publicar un artículo para que sea visible para todos los usuarios. Solo admins y editores pueden realizar esta acción.',
   })
   @ApiParam({
     name: 'id',
@@ -415,7 +421,7 @@ export class ArticlesController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Article publication status toggled successfully',
+    description: 'Artículo publicado exitosamente',
     content: {
       'application/json': {
         example: {
@@ -445,7 +451,57 @@ export class ArticlesController {
     description: 'Forbidden - requires admin or editor role',
   })
   @ApiResponse({ status: 404, description: 'Article not found' })
-  async togglePublish(@Param('id') id: string): Promise<Article> {
-    return this.articlesService.togglePublish(id);
+  async publish(@Param('id') id: string): Promise<Article> {
+    return this.articlesService.publish(id);
+  }
+
+  @Patch(':id/unpublish')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.EDITOR)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Retirar artículo',
+    description:
+      'Retirar un artículo para que ya no sea visible para los usuarios. Solo admins y editores pueden realizar esta acción.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Article ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Artículo retirado exitosamente',
+    content: {
+      'application/json': {
+        example: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          title: 'Introduction to NestJS',
+          slug: 'introduction-to-nestjs',
+          isPublished: false,
+          author: {
+            id: '987fcdeb-51d3-a456-b789-012345678901',
+            name: 'John Doe',
+          },
+          category: {
+            id: 'abc12345-e89b-12d3-a456-426614174000',
+            name: 'Backend Development',
+          },
+          updatedAt: '2024-01-02T00:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - requires admin or editor role',
+  })
+  @ApiResponse({ status: 404, description: 'Article not found' })
+  async unpublish(@Param('id') id: string): Promise<Article> {
+    return this.articlesService.unpublish(id);
   }
 }

@@ -1,8 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Article } from '@/modules/articles/article.entity';
-import { User } from '@/modules/users/user.entity';
+import { User, UserRole } from '@/modules/users/user.entity';
 import { Category } from '@/modules/categories/category.entity';
 import { Tag } from '@/modules/tags/tag.entity';
 import { SortField, SortOrder } from '@/modules/articles/dto/article-query.dto';
@@ -78,6 +82,17 @@ export class ArticlesService {
       .skip((page - 1) * limit)
       .take(limit)
       .getManyAndCount();
+
+    // Log para debugging - verificar artículos sin autor
+    articles.forEach((article) => {
+      if (!article.author) {
+        console.log('Article without author:', {
+          id: article.id,
+          title: article.title,
+          slug: article.slug,
+        });
+      }
+    });
 
     const totalPages = Math.ceil(total / limit);
 
@@ -200,7 +215,7 @@ export class ArticlesService {
     let tags: Tag[] = [];
     if (data.tagIds && data.tagIds.length > 0) {
       tags = await this.tagRepo.find({
-        where: data.tagIds.map(id => ({ id }))
+        where: data.tagIds.map((id) => ({ id })),
       });
     }
 
@@ -241,7 +256,7 @@ export class ArticlesService {
     // Buscar tags si se proporcionan tagIds
     if (data.tagIds && data.tagIds.length > 0) {
       const tags = await this.tagRepo.find({
-        where: data.tagIds.map(id => ({ id }))
+        where: data.tagIds.map((id) => ({ id })),
       });
       article.tags = tags;
     }
@@ -265,7 +280,33 @@ export class ArticlesService {
     return this.articleRepo.save(article);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, user: User): Promise<void> {
+    const article = await this.findOne(id);
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+
+    // Verificar permisos: solo admin o el autor pueden eliminar
+    const isAdmin = user.role === UserRole.ADMIN;
+    const isAuthor = article.author.id === user.id;
+
+    console.log('Delete permissions check:', {
+      userId: user.id,
+      userRole: user.role,
+      articleId: article.id,
+      articleAuthorId: article.author.id,
+      isAdmin,
+      isAuthor,
+      canDelete: isAdmin || isAuthor,
+    });
+
+    if (!isAdmin && !isAuthor) {
+      throw new ForbiddenException(
+        'You can only delete your own articles or must be an admin',
+      );
+    }
+
+    // Soft delete
     await this.articleRepo.softDelete(id);
   }
 
@@ -275,6 +316,24 @@ export class ArticlesService {
       throw new NotFoundException(`Article with ID "${id}" not found`);
     }
     article.isPublished = !article.isPublished;
+    return this.articleRepo.save(article);
+  }
+
+  async publish(id: string): Promise<Article> {
+    const article = await this.findOne(id);
+    if (!article) {
+      throw new NotFoundException(`Article with ID "${id}" not found`);
+    }
+    article.isPublished = true;
+    return this.articleRepo.save(article);
+  }
+
+  async unpublish(id: string): Promise<Article> {
+    const article = await this.findOne(id);
+    if (!article) {
+      throw new NotFoundException(`Article with ID "${id}" not found`);
+    }
+    article.isPublished = false;
     return this.articleRepo.save(article);
   }
 }
