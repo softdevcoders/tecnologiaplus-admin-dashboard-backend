@@ -91,16 +91,15 @@ export class ImagesController {
     }
 
     // Validar tipo de archivo usando configuración centralizada
-    if (!CLOUDINARY_CONFIG.UPLOAD.ALLOWED_TYPES.includes(file.mimetype as any)) {
+    if (
+      !CLOUDINARY_CONFIG.UPLOAD.ALLOWED_TYPES.includes(file.mimetype as any)
+    ) {
       throw new BadRequestException('Tipo de archivo no permitido');
     }
 
     try {
       // Subir a Cloudinary
-      const result = await this.cloudinaryService.uploadCoverImage(
-        file,
-        sessionId,
-      );
+      const result = await this.cloudinaryService.uploadCoverImage(file);
 
       // Guardar en tabla temporal
       const tempImage = this.tempImageRepo.create({
@@ -183,16 +182,15 @@ export class ImagesController {
     }
 
     // Validar tipo de archivo usando configuración centralizada
-    if (!CLOUDINARY_CONFIG.UPLOAD.ALLOWED_TYPES.includes(file.mimetype as any)) {
+    if (
+      !CLOUDINARY_CONFIG.UPLOAD.ALLOWED_TYPES.includes(file.mimetype as any)
+    ) {
       throw new BadRequestException('Tipo de archivo no permitido');
     }
 
     try {
       // Subir a Cloudinary
-      const result = await this.cloudinaryService.uploadContentImage(
-        file,
-        sessionId,
-      );
+      const result = await this.cloudinaryService.uploadContentImage(file);
 
       // Guardar en tabla temporal
       const tempImage = this.tempImageRepo.create({
@@ -216,6 +214,129 @@ export class ImagesController {
     } catch (error) {
       console.error('Error uploading content image:', error);
       throw new BadRequestException('Error al subir la imagen');
+    }
+  }
+
+  @Post('move-to-article')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Mover imágenes temporales a ubicación final del artículo',
+    description:
+      'Mueve las imágenes temporales a la estructura final organizada por categoría y artículo',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        tempImageIds: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'IDs de las imágenes temporales a mover',
+        },
+        categorySlug: {
+          type: 'string',
+          description: 'Slug de la categoría del artículo',
+        },
+        articleSlug: {
+          type: 'string',
+          description: 'Slug del artículo',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Imágenes movidas exitosamente',
+    schema: {
+      type: 'object',
+      properties: {
+        movedImages: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              tempImageId: { type: 'string' },
+              newUrl: { type: 'string' },
+              newPublicId: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  async moveImagesToArticle(
+    @Body()
+    body: {
+      tempImageIds: string[];
+      categorySlug: string;
+      articleSlug: string;
+    },
+  ) {
+    const { tempImageIds, categorySlug, articleSlug } = body;
+
+    if (!tempImageIds || tempImageIds.length === 0) {
+      throw new BadRequestException(
+        'No se proporcionaron IDs de imágenes temporales',
+      );
+    }
+
+    if (!categorySlug || !articleSlug) {
+      throw new BadRequestException(
+        'CategorySlug y ArticleSlug son requeridos',
+      );
+    }
+
+    try {
+      const movedImages: {
+        tempImageId: string;
+        newUrl: string;
+        newPublicId: string;
+      }[] = [];
+
+      for (const tempImageId of tempImageIds) {
+        const tempImage = await this.tempImageRepo.findOne({
+          where: { id: tempImageId },
+        });
+
+        if (!tempImage) {
+          console.warn(`Imagen temporal no encontrada: ${tempImageId}`);
+          continue;
+        }
+
+        // Generar el nuevo nombre de archivo
+        const fileExtension = tempImage.fileName.split('.').pop() || 'jpg';
+        const newFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExtension}`;
+
+        // Construir la nueva ruta
+        const newFolder = `tecnologiaplus/articles/${categorySlug}/${articleSlug}`;
+        const newPublicId = `${newFolder}/${newFileName}`;
+
+        // Mover la imagen en Cloudinary
+        const result = await this.cloudinaryService.moveImage(
+          tempImage.cloudinaryPublicId,
+          newPublicId,
+        );
+
+        if (result) {
+          // Actualizar la imagen temporal como usada
+          tempImage.isUsed = true;
+          tempImage.newUrl = result.url;
+          tempImage.newPublicId = result.publicId;
+          await this.tempImageRepo.save(tempImage);
+
+          movedImages.push({
+            tempImageId,
+            newUrl: result.url,
+            newPublicId: result.publicId,
+          });
+        }
+      }
+
+      return { movedImages };
+    } catch (error) {
+      console.error('Error moving images to article:', error);
+      throw new BadRequestException('Error al mover las imágenes al artículo');
     }
   }
 

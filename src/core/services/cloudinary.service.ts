@@ -23,7 +23,6 @@ export class CloudinaryService {
   async uploadImage(
     file: Express.Multer.File,
     folderType: keyof typeof CLOUDINARY_CONFIG.FOLDERS,
-    sessionId?: string,
   ): Promise<{ url: string; publicId: string }> {
     try {
       // Convertir buffer a base64
@@ -31,7 +30,7 @@ export class CloudinaryService {
       const dataURI = `data:${file.mimetype};base64,${base64Image}`;
 
       // Generar ruta de carpeta usando la configuración centralizada
-      const folder = getCloudinaryFolder(folderType, sessionId);
+      const folder = getCloudinaryFolder(folderType);
 
       // Subir a Cloudinary
       const result = await cloudinary.uploader.upload(dataURI, {
@@ -60,9 +59,8 @@ export class CloudinaryService {
    */
   async uploadCoverImage(
     file: Express.Multer.File,
-    sessionId: string,
   ): Promise<{ url: string; publicId: string }> {
-    return this.uploadImage(file, 'ARTICLES_COVERS', sessionId);
+    return this.uploadImage(file, 'ARTICLES_COVERS');
   }
 
   /**
@@ -70,9 +68,8 @@ export class CloudinaryService {
    */
   async uploadContentImage(
     file: Express.Multer.File,
-    sessionId: string,
   ): Promise<{ url: string; publicId: string }> {
-    return this.uploadImage(file, 'ARTICLES_CONTENT', sessionId);
+    return this.uploadImage(file, 'ARTICLES_CONTENT');
   }
 
   /**
@@ -92,10 +89,33 @@ export class CloudinaryService {
    */
   async imageExists(publicId: string): Promise<boolean> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await cloudinary.api.resource(publicId);
+
       return !!result;
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error checking image existence:', error);
       return false;
+    }
+  }
+
+  /**
+   * Mover una imagen a una nueva ubicación
+   */
+  async moveImage(
+    fromPublicId: string,
+    toPublicId: string,
+  ): Promise<{ url: string; publicId: string } | null> {
+    try {
+      const result = await cloudinary.uploader.rename(fromPublicId, toPublicId);
+
+      return {
+        url: result.secure_url,
+        publicId: result.public_id,
+      };
+    } catch (error) {
+      console.error('Error moving image in Cloudinary:', error);
+      return null;
     }
   }
 }

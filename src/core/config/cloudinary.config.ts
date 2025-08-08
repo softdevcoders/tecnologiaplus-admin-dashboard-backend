@@ -40,7 +40,7 @@ export const CLOUDINARY_CONFIG = {
 
     // Tamaño de chunks para archivos grandes (6MB)
     CHUNK_SIZE: 6 * 1024 * 1024,
-    
+
     // Configuración para mantener calidad original
     PRESERVE_QUALITY: {
       quality: 'auto:best', // Mantener la mejor calidad automática
@@ -84,15 +84,12 @@ export const CLOUDINARY_CONFIG = {
  */
 export function getCloudinaryFolder(
   folderType: keyof typeof CLOUDINARY_CONFIG.FOLDERS,
-  sessionId?: string,
 ): string {
   const baseFolder = CLOUDINARY_CONFIG.BASE_FOLDER;
   const subFolder = CLOUDINARY_CONFIG.FOLDERS[folderType];
 
-  if (sessionId) {
-    return `${baseFolder}/${subFolder}/${sessionId}`;
-  }
-
+  // No usar sessionId en la ruta de la carpeta para evitar carpetas por usuario
+  // El sessionId se usará solo para tracking en la base de datos
   return `${baseFolder}/${subFolder}`;
 }
 

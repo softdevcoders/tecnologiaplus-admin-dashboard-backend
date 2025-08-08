@@ -15,6 +15,7 @@ import { ArticlesService } from '@/modules/articles/articles.service';
 import { Article } from '@/modules/articles/article.entity';
 import { JwtAuthGuard } from '@/modules/auth/jwt-auth.guard';
 import { User, UserRole } from '@/modules/users/user.entity';
+import { UsersService } from '@/modules/users/users.service';
 import { RolesGuard } from '@/modules/auth/roles.guard';
 import { ArticleQueryDto } from '@/modules/articles/dto/article-query.dto';
 import {
@@ -31,7 +32,10 @@ import { Roles } from '@/modules/auth/roles.decorator';
 @Controller('articles')
 @ApiTags('articles')
 export class ArticlesController {
-  constructor(private readonly articlesService: ArticlesService) {}
+  constructor(
+    private readonly articlesService: ArticlesService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -211,11 +215,12 @@ export class ArticlesController {
     status: 401,
     description: 'Unauthorized - authentication required',
   })
-  create(
+  async create(
     @Body() data: CreateArticleDto,
-    @Request() req: { user: User },
+    @Request() req: { user: { userId: string; email: string; role: UserRole } },
   ): Promise<Article> {
-    return this.articlesService.create(data, req.user);
+    const user = await this.usersService.findOne(req.user.userId);
+    return this.articlesService.create(data, user);
   }
 
   @Put(':id')

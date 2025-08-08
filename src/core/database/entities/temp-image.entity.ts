@@ -42,4 +42,10 @@ export class TempImage {
 
   @Column({ default: false })
   isUsed: boolean; // Para marcar si la imagen fue usada en un artículo
+
+  @Column({ nullable: true })
+  newUrl?: string; // URL final después de mover la imagen
+
+  @Column({ nullable: true })
+  newPublicId?: string; // PublicId final después de mover la imagen
 }
