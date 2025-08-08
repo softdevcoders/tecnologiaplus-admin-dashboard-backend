@@ -85,6 +85,57 @@ export class ArticlesController {
     });
   }
 
+  @Get('slug/:slug')
+  @ApiOperation({
+    summary: 'Get article by slug',
+    description:
+      'Retrieve a specific article by its slug with all its relationships (author, category, tags) and metadata.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Article slug',
+    example: 'introduction-to-nestjs',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Article found',
+    content: {
+      'application/json': {
+        example: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          title: 'Introduction to NestJS',
+          content:
+            '# Getting Started with NestJS\n\nNestJS is a progressive Node.js framework...',
+          slug: 'introduction-to-nestjs',
+          description: 'Learn the basics of NestJS framework',
+          keywords: 'nestjs, nodejs, typescript, backend',
+          coverImage: 'https://example.com/images/nestjs-cover.jpg',
+          isPublished: true,
+          author: {
+            id: '987fcdeb-51d3-a456-b789-012345678901',
+            name: 'John Doe',
+            email: 'john@example.com',
+          },
+          category: {
+            id: 'abc12345-e89b-12d3-a456-426614174000',
+            name: 'Backend Development',
+            slug: 'backend-development',
+          },
+          tags: [
+            { id: 'tag123', name: 'NestJS', slug: 'nestjs' },
+            { id: 'tag456', name: 'TypeScript', slug: 'typescript' },
+          ],
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-02T00:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 404, description: 'Article not found' })
+  findBySlug(@Param('slug') slug: string): Promise<Article> {
+    return this.articlesService.findBySlug(slug);
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get article by ID',

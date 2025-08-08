@@ -177,6 +177,15 @@ export class ArticlesService {
     return article;
   }
 
+  async findBySlug(slug: string): Promise<Article> {
+    const article = await this.articleRepo.findOne({
+      where: { slug },
+      relations: ['author', 'category', 'tags'],
+    });
+    if (!article) throw new NotFoundException('Article not found');
+    return article;
+  }
+
   async create(data: CreateArticleData, author: User): Promise<Article> {
     // Buscar categoría si se proporciona categoryId
     let category: Category | undefined = undefined;
