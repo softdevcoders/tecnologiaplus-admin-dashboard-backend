@@ -13,6 +13,11 @@ export enum UserRole {
   EDITOR = 'EDITOR',
 }
 
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  DEACTIVATED = 'DEACTIVATED',
+}
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -29,6 +34,9 @@ export class User {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.EDITOR })
   role: UserRole;
+
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  status: UserStatus;
 
   @CreateDateColumn()
   createdAt: Date;

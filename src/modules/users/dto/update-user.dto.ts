@@ -6,7 +6,7 @@ import {
   IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../user.entity';
+import { UserRole, UserStatus } from '../user.entity';
 
 export class UpdateUserDto {
   @IsString()
@@ -48,4 +48,14 @@ export class UpdateUserDto {
     required: false,
   })
   role?: UserRole;
+
+  @IsEnum(UserStatus)
+  @IsOptional()
+  @ApiProperty({
+    description: 'User status - only admins can change this',
+    enum: UserStatus,
+    example: UserStatus.ACTIVE,
+    required: false,
+  })
+  status?: UserStatus;
 }

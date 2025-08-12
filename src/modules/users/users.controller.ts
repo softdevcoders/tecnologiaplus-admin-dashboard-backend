@@ -5,12 +5,14 @@ import {
   Body,
   Param,
   Put,
+  Patch,
   Delete,
   UseGuards,
   Query,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User, UserRole } from './user.entity';
+import { User, UserRole, UserStatus } from './user.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -61,6 +63,13 @@ export class UsersController {
     description: 'Filter by user role',
     enum: UserRole,
     example: UserRole.EDITOR,
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'Filter by user status',
+    enum: ['ACTIVE', 'DEACTIVATED'],
+    example: 'ACTIVE',
   })
   @ApiQuery({
     name: 'search',
@@ -123,12 +132,14 @@ export class UsersController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('role') role?: UserRole,
+    @Query('status') status?: 'ACTIVE' | 'DEACTIVATED',
     @Query('search') search?: string,
   ): Promise<{ data: User[]; meta: any }> {
     return this.usersService.findAll({
       page,
       limit,
       role,
+      status,
       search,
     });
   }
@@ -307,6 +318,66 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
+  @Patch(':id/status')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Update user status',
+    description:
+      'Update user status to ACTIVE or DEACTIVATED. Only accessible by administrators.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: ['ACTIVE', 'DEACTIVATED'],
+          example: 'DEACTIVATED',
+        },
+        reason: {
+          type: 'string',
+          description: 'Optional reason for status change',
+          example: 'User requested deactivation',
+        },
+      },
+      required: ['status'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User status updated successfully',
+    content: {
+      'application/json': {
+        example: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          name: 'John Doe',
+          status: 'DEACTIVATED',
+          updatedAt: '2024-01-03T00:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden - requires admin role' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() body: { status: UserStatus; reason?: string },
+    @Request() req: Request & { user: { id: string } },
+  ): Promise<User> {
+    const currentUserId = req.user?.id;
+    return await this.usersService.updateStatus(id, body.status, currentUserId);
+  }
+
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -339,7 +410,11 @@ export class UsersController {
   })
   @ApiResponse({ status: 403, description: 'Forbidden - requires admin role' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  remove(@Param('id') id: string): Promise<void> {
-    return this.usersService.remove(id);
+  async remove(
+    @Param('id') id: string,
+    @Request() req: Request & { user: { id: string } },
+  ): Promise<void> {
+    const currentUserId = req.user?.id;
+    return await this.usersService.remove(id, currentUserId);
   }
 }

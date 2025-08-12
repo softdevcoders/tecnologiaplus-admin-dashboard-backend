@@ -19,6 +19,11 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
     if (!user) return null;
 
+    // Verificar que el usuario esté activo
+    if (user.status !== 'ACTIVE') {
+      return null;
+    }
+
     if (await compare(pass, user.password)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;

@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddNewUrlFieldsToTempImages1750170800000 implements MigrationInterface {
+export class AddNewUrlFieldsToTempImages1750170800000
+  implements MigrationInterface
+{
   name = 'AddNewUrlFieldsToTempImages1750170800000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -18,4 +20,4 @@ export class AddNewUrlFieldsToTempImages1750170800000 implements MigrationInterf
       DROP COLUMN "newPublicId"
     `);
   }
-} 
+}

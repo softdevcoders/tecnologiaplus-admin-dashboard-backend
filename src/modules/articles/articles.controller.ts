@@ -392,9 +392,9 @@ export class ArticlesController {
     status: 401,
     description: 'Unauthorized - authentication required',
   })
-  @ApiResponse({ 
-    status: 403, 
-    description: 'Forbidden - user is not admin or article author' 
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - user is not admin or article author',
   })
   @ApiResponse({ status: 404, description: 'Article not found' })
   async remove(
