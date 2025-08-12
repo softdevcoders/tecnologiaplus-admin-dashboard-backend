@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { User, UserRole, UserStatus } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -29,6 +29,7 @@ export class UsersService {
     const query = this.userRepo
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.articles', 'articles')
+      .where('user.deletedAt IS NULL') // Excluir usuarios eliminados
       .orderBy('user.createdAt', 'DESC');
 
     if (role) {
@@ -67,7 +68,7 @@ export class UsersService {
 
   async findOne(id: string): Promise<User> {
     const user = await this.userRepo.findOne({
-      where: { id },
+      where: { id, deletedAt: IsNull() }, // Excluir usuarios eliminados
       relations: ['articles'],
     });
 
@@ -96,8 +97,13 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto, currentUserId?: string): Promise<User> {
     const user = await this.findOne(id);
+
+    // Verificar que el usuario no se esté cambiando a sí mismo el rol de ADMIN a EDITOR
+    if (currentUserId && currentUserId === id && user.role === UserRole.ADMIN && updateUserDto.role === UserRole.EDITOR) {
+      throw new ConflictException('No puedes cambiar tu propio rol de Administrador a Editor por seguridad');
+    }
 
     if (updateUserDto.email && updateUserDto.email !== user.email) {
       const existingUser = await this.userRepo.findOne({
@@ -125,7 +131,8 @@ export class UsersService {
       throw new ConflictException('No puedes eliminarte a ti mismo');
     }
 
-    await this.userRepo.softRemove(user);
+    // Usar softDelete en lugar de softRemove para evitar problemas con relaciones
+    await this.userRepo.softDelete(id);
   }
 
   async findByEmail(email: string): Promise<User | null> {

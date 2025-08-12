@@ -310,12 +310,18 @@ export class UsersController {
   })
   @ApiResponse({ status: 403, description: 'Forbidden - requires admin role' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 409, description: 'Conflict - email already exists' })
+  @ApiResponse({
+    status: 409,
+    description:
+      'Conflict - email already exists or cannot change own role from admin to editor',
+  })
   update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @Request() req: Request & { user: { id: string } },
   ): Promise<User> {
-    return this.usersService.update(id, updateUserDto);
+    const currentUserId = req.user?.id;
+    return this.usersService.update(id, updateUserDto, currentUserId);
   }
 
   @Patch(':id/status')
