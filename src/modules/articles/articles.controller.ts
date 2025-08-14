@@ -38,8 +38,6 @@ export class ArticlesController {
   ) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get all articles',
     description: 'Retrieve all articles with pagination and filtering options',
@@ -62,8 +60,6 @@ export class ArticlesController {
   }
 
   @Get('search')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Search articles',
     description: 'Search articles by title, content, or description',

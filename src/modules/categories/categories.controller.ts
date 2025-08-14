@@ -27,9 +27,7 @@ import {
 import { Category } from './category.entity';
 
 @Controller('categories')
-@UseGuards(JwtAuthGuard)
 @ApiTags('categories')
-@ApiBearerAuth()
 export class CategoriesController {
   constructor(private readonly service: CategoriesService) {}
 

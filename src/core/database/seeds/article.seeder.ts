@@ -3,6 +3,7 @@ import { Article } from '../../../modules/articles/article.entity';
 import { User } from '../../../modules/users/user.entity';
 import { Category } from '../../../modules/categories/category.entity';
 import getArticles from './data/articles';
+import { cleanHtml } from './lib/html-cleaner';
 
 export class ArticleSeeder {
   static async execute(): Promise<void> {
@@ -27,10 +28,10 @@ export class ArticleSeeder {
     const articles = getArticles();
 
     const articlesToSave = articles.map((article) => ({
-      title: article.title,
+      title: cleanHtml(article.title),
       content: article.content,
       slug: article.slug,
-      summary: article.summary,
+      summary: cleanHtml(article.summary),
       metaKeywords: article.metaKeywords.join(','),
       metaDescription: article.metaDescription,
       metaTitle: article.metaTitle,

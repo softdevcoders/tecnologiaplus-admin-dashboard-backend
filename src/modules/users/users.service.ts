@@ -97,12 +97,23 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, currentUserId?: string): Promise<User> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    currentUserId?: string,
+  ): Promise<User> {
     const user = await this.findOne(id);
 
     // Verificar que el usuario no se esté cambiando a sí mismo el rol de ADMIN a EDITOR
-    if (currentUserId && currentUserId === id && user.role === UserRole.ADMIN && updateUserDto.role === UserRole.EDITOR) {
-      throw new ConflictException('No puedes cambiar tu propio rol de Administrador a Editor por seguridad');
+    if (
+      currentUserId &&
+      currentUserId === id &&
+      user.role === UserRole.ADMIN &&
+      updateUserDto.role === UserRole.EDITOR
+    ) {
+      throw new ConflictException(
+        'No puedes cambiar tu propio rol de Administrador a Editor por seguridad',
+      );
     }
 
     if (updateUserDto.email && updateUserDto.email !== user.email) {
@@ -139,7 +150,11 @@ export class UsersService {
     return this.userRepo.findOne({ where: { email } });
   }
 
-  async updateStatus(id: string, status: UserStatus, currentUserId?: string): Promise<User> {
+  async updateStatus(
+    id: string,
+    status: UserStatus,
+    currentUserId?: string,
+  ): Promise<User> {
     const user = await this.findOne(id);
 
     if (!user) {
@@ -147,7 +162,11 @@ export class UsersService {
     }
 
     // Verificar que el usuario no se esté desactivando a sí mismo
-    if (currentUserId && currentUserId === id && status === UserStatus.DEACTIVATED) {
+    if (
+      currentUserId &&
+      currentUserId === id &&
+      status === UserStatus.DEACTIVATED
+    ) {
       throw new ConflictException('No puedes desactivarte a ti mismo');
     }
 
