@@ -1011,9 +1011,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>Brindar un excelente servicio al cliente es esencial para el éxito de cualquier negocio de comida. En el caso de los restaurantes autoservicio, garantizar una experiencia satisfactoria, rápida y sin contratiempos se convierte en un factor clave para fidelizar a los clientes y destacarse en un mercado competitivo. Para lograrlo, es fundamental contar con una&#8230;</p>\n',
     },
-    images: [
-      'v1747157484/website-v2/blog/localizadores-para-restaurantes/autoservicio-restaurante-8-infaltables/shwocfd5yexl6prratf4',
-    ],
+    images: ['v1755271086/shwocfd5yexl6prratf4_ykvgpq'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1046,9 +1044,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>En los restaurantes de autoservicio, donde no hay servicio a la mesa ni meseros, la rapidez y la organización del proceso de atención son esenciales para garantizar la satisfacción del cliente. Para lograrlo, herramientas tecnológicas como los avisadores de clientes se han convertido en una solución eficiente que optimiza el servicio y mejora la experiencia&#8230;</p>\n',
     },
-    images: [
-      'v1747157485/website-v2/blog/localizadores-para-restaurantes/avisadores-clientes-restaurante-autoservicio/iv5xyyaht7ps7rxvdfw1',
-    ],
+    images: ['v1755271085/iv5xyyaht7ps7rxvdfw1_lyk2px'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1081,9 +1077,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>La tecnología ha llegado para facilitarle la vida a cientos de negocios, y la industria gastronómica no es la excepción. Los localizadores para restaurantes han revolucionado la forma en que los establecimientos atienden a los clientes, mejorando notablemente la eficiencia en la toma de pedidos y ofreciendo una experiencia más fluida. Esto marca un antes&#8230;</p>\n',
     },
-    images: [
-      'v1747157484/website-v2/blog/localizadores-para-restaurantes/escoger-localizador-ideal-restaurante-bogota/zjmueqynef85vavenptj',
-    ],
+    images: ['v1755271081/zjmueqynef85vavenptj_mjgsx2'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1116,9 +1110,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>Si estás considerando implementar localizadores para restaurantes autoservicio en Colombia, es fundamental que tengas en cuenta ciertos aspectos clave para garantizar una inversión exitosa. En Tecnología Plus, como fabricantes de esta tecnología, sabemos que elegir el sistema adecuado puede marcar la diferencia en la experiencia del cliente y la eficiencia operativa de tu negocio. Por&#8230;</p>\n',
     },
-    images: [
-      'v1747157486/website-v2/blog/localizadores-para-restaurantes/autoservicio-colombia-6-claves/xd13dwcmrrtrfewxp5oa',
-    ],
+    images: ['v1755271094/xd13dwcmrrtrfewxp5oa_ehkuwe'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1150,9 +1142,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>En la industria gastronómica actual, la eficiencia y la rapidez en la atención al cliente marcan la diferencia. Un servicio ágil no solo mejora la experiencia del usuario, sino que también incrementa la rentabilidad del negocio. En Tecnología Plus, somos fabricantes de localizadores de clientes para restaurantes autoservicio, diseñados para optimizar los tiempos de espera&#8230;</p>\n',
     },
-    images: [
-      'v1747157485/website-v2/blog/localizadores-para-restaurantes/localizadores-clientes-autoservicio/kmqmrs58emlnndbelt7g',
-    ],
+    images: ['v1755271083/kmqmrs58emlnndbelt7g_fyzahb'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1182,9 +1172,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>Los localizadores para restaurantes o avisadores de pedidos han revolucionado la industria gastronómica, facilitando la comunicación entre el establecimiento y los clientes. Hace algunos años, pocos restaurantes de autoservicio contaban con esta tecnología, pero hoy en día su uso se ha convertido en una necesidad para mejorar la atención y agilizar el servicio. Gracias a&#8230;</p>\n',
     },
-    images: [
-      'v1747157485/website-v2/blog/localizadores-para-restaurantes/como-elegir-localizadores-para-restaurantes/jiko3dmfxdau84gu4klp',
-    ],
+    images: ['v1755271083/jiko3dmfxdau84gu4klp_uuh3m8'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1214,9 +1202,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>En la industria gastronómica, la rapidez y eficiencia en el servicio son clave para garantizar una experiencia satisfactoria. Es aquí donde los avisadores de pedidos, también conocidos como llamadores y localizadores para restaurantes, juegan un papel fundamental. Estos dispositivos han revolucionado la forma en que los restaurantes en Colombia, especialmente en Bogotá, gestionan la atención&#8230;</p>\n',
     },
-    images: [
-      'v1747157483/website-v2/blog/localizadores-para-restaurantes/por-que-usar-localizadores-para-restaurantes/uz3xvayckifntwzzehbp',
-    ],
+    images: ['v1755271079/uz3xvayckifntwzzehbp_p5nmcr'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1247,9 +1233,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>Las zonas de comidas —como las de centros comerciales, plazoletas o patios gastronómicos— enfrentan un enemigo silencioso: el caos. Filas interminables, pedidos confundidos, clientes impacientes, gritos para llamar turnos y un ambiente de tensión constante. Todo eso afecta la experiencia del usuario y reduce las posibilidades de fidelización. ¿La buena noticia? Existe una solución moderna,&#8230;</p>\n',
     },
-    images: [
-      'v1749569846/website-v2/blog/localizadores-para-restaurantes/caos-zonas-de-comida/iacfr9xoll5uq3ui9cll',
-    ],
+    images: ['v1755271103/iacfr9xoll5uq3ui9cll_uvfacp'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1280,9 +1264,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>Imagina este escenario: estás en una plazoleta de comidas un sábado al mediodía. El lugar está lleno. Hay familias con niños impacientes, trabajadores en su hora de almuerzo, turistas buscando un bocado rápido. Todos ordenan sus comidas y, de inmediato, se forma una escena caótica: 🔊 Números que se gritan desde los mostradores 🤷‍♂️ Personas&#8230;</p>\n',
     },
-    images: [
-      'v1749569567/website-v2/blog/localizadores-para-restaurantes/secreto-espera-agradable/ab2wfaqjsgdjraksr6lu',
-    ],
+    images: ['v1755271108/ab2wfaqjsgdjraksr6lu_w0jucv'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1316,9 +1298,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>En un mundo donde la experiencia lo es todo, los negocios que entienden cómo hacer sentir bien al cliente son los que ganan. Y en zonas de comida, plazoletas, cafeterías o restaurantes autoservicio, el avisador de pedidos se ha convertido en un aliado silencioso pero poderoso para lograrlo. ¿La razón? Este pequeño dispositivo mejora radicalmente&#8230;</p>\n',
     },
-    images: [
-      'website-v2/blog/localizadores-para-restaurantes/avisador-de-pedidos-fidelizacion-clientes/xianlxbcg05xy7z4rw43',
-    ],
+    images: ['v1755271114/xianlxbcg05xy7z4rw43_ardwwk'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1350,9 +1330,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>El caos silencioso que nadie quiere ver en un restaurante Imagina esta escena, común en muchos restaurantes en Colombia:Es hora pico en una plazoleta de comidas. El local está lleno.Hay una fila de personas esperando su pedido, otros preguntan si ya está listo, mientras el personal intenta recordar nombres, números o caras. La encargada del&#8230;</p>',
     },
-    images: [
-      'website-v2/blog/localizadores-para-restaurantes/guia-localizadores-clientes-para-restaurantes-colombia/kfvbyabkyabmjm1sjf0s',
-    ],
+    images: ['v1755271107/kfvbyabkyabmjm1sjf0s_uijo35'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1385,9 +1363,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>El estrés detrás del mostrador: cuando el éxito se convierte en caos En Bogotá, una ciudad donde la cultura gastronómica crece a pasos agigantados, miles de restaurantes enfrentan cada día un mismo reto: brindar una atención eficiente sin sacrificar la calidad, incluso cuando el flujo de clientes parece desbordarse. Las plazoletas de comida en centros&#8230;</p>\n',
     },
-    images: [
-      'website-v2/blog/localizadores-para-restaurantes/localizadores-para-restaurantes-autoservicio-bogota-rec-v3/z4ooas0pjripocgyorxn',
-    ],
+    images: ['v1755271118/z4ooas0pjripocgyorxn_qtkj5d'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1420,9 +1396,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>🍽️ Cuando la experiencia de comer se ve arruinada por el desorden Has hecho tu pedido. Te entregan un número en un papel o te dicen “cuando escuche que lo llamamos, venga por su comida”. Buscas una mesa en medio del bullicio, con el ticket en la mano, vigilante, alerta. Pasan los minutos. Gritan un&#8230;</p>\n',
     },
-    images: [
-      'website-v2/blog/localizadores-para-restaurantes/sistema-de-llamado-para-restaurante-autoservicio-porque-lo-necesitas/pwulzcdsjr6yiss8noyo',
-    ],
+    images: ['v1755271113/pwulzcdsjr6yiss8noyo_pgepw0'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1455,9 +1429,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>En momentos donde los costos operativos suben y la rotación de empleados es alta, muchos restaurantes enfrentan el mismo dilema: ¿cómo mejorar la atención al cliente sin contratar más personal?La respuesta está en una tecnología sencilla, poderosa y probada por más de 1.000 restaurantes en Colombia: los localizadores de clientes de Tecnología Plus. 🚨 El&#8230;</p>\n',
     },
-    images: [
-      'website-v2/blog/localizadores-para-restaurantes/localizadores-de-clientes-atencion-sin-mas-personal/qftybopdf4faabwiklna',
-    ],
+    images: ['v1755271119/qftybopdf4faabwiklna_ogmpcm'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1490,9 +1462,7 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>El caos silencioso en las zonas de comida Si alguna vez has estado en una plazoleta de comidas, sabes exactamente lo que ocurre: clientes desorientados, gritos para llamar por nombre o número, filas que entorpecen el servicio, empleados tensionados y una experiencia que, aunque no siempre se nota a simple vista, genera frustración y pérdida&#8230;</p>\n',
     },
-    images: [
-      'website-v2/blog/localizadores-para-restaurantes/como-funcionan-localizadores-para-restaurantes-paso-a-paso/xlahtg7dlpqsw1pbylxn',
-    ],
+    images: ['v1755271084/xlahtg7dlpqsw1pbylxn_bxuzcw'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
@@ -1525,48 +1495,11 @@ const localizadoresParaRestaurantesPosts = [
       rendered:
         '<p>La tecnología que no se rinde: ¿Estás cansado de lo que se daña rápido? En los restaurantes de alto tráfico, la batalla es diaria. Turnos intensos, clientes impacientes, equipos usados cientos de veces al día. Entre bandejas calientes, bebidas derramadas y entregas contrarreloj, los dispositivos tecnológicos están expuestos a caídas, golpes y desgaste continuo. Y&#8230;</p>\n',
     },
-    images: [
-      'website-v2/blog/localizadores-para-restaurantes/localizadores-de-clientes-resistentes-golpes-caidas/oec3jodo12oy0ggqpixw',
-    ],
+    images: ['v1755271081/oec3jodo12oy0ggqpixw_vnflfr'],
     categories: [
       routes.blog.children.localizadoresParaRestaurantes.category_key,
     ],
   },
-  /*
-  {
-    "id": ,
-    "date": "",
-    "modified": "",
-    "slug": "",
-    "current_link": `${routes.blog.children.localizadoresParaRestaurantes.url}/`,
-    "previous_link": [
-        "/timbres-de-mesa-para-tu-restaurante"
-    ],
-    "metadata": {
-        "title": "",
-        "description": "",
-        "keywords": [
-            "",
-        ]
-    },
-    "title": {
-        "rendered": ""
-    },
-    "content": {
-        "rendered": "",
-        "template_name": "/localizadores-para-restaurantes/",
-    },
-    "excerpt": {
-        "rendered": "",
-    },
-    "images": [
-        ""
-    ],
-    "categories": [
-      routes.blog.children.localizadoresParaRestaurantes.category_key
-    ],
-  },
-*/
 ];
 
 const turneroTurnoexpressPosts = [
