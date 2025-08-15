@@ -818,9 +818,7 @@ const llamadoresDeMeserosPosts = [
       rendered:
         '<p>Como gerente y dueño de un restaurante, tienes la responsabilidad de ofrecer el mejor servicio posible, tanto en infraestructura como en atención al cliente. Estos aspectos son fundamentales para garantizar una experiencia memorable, lo que aumenta las posibilidades de que los comensales regresen y recomienden tu establecimiento. Sin embargo, es natural que te preguntes cómo&#8230;</p>\n',
     },
-    images: [
-      'v1747157481/website-v2/blog/llamadores-de-meseros/como-mejorar-servicio-restaurante/l699mlifpw0p2rtshopf',
-    ],
+    images: ['v1755271079/l699mlifpw0p2rtshopf_st9sqi'],
     categories: [routes.blog.children.llamadoresDeMeseros.category_key],
   },
   {
@@ -851,9 +849,7 @@ const llamadoresDeMeserosPosts = [
       rendered:
         '<p>Cuando hablamos de atención al cliente, pensamos en empresas como Amazon, Zara, Netflix, entre otras grandes industrias. Sin embargo, no solo estas grandes compañías deben ofrecer un servicio de atención al cliente de calidad, ya que las pequeñas industrias también tienen esta responsabilidad. Y es que el protocolo de atención al cliente de tu empresa&#8230;</p>\n',
     },
-    images: [
-      'v1747157483/website-v2/blog/llamadores-de-meseros/mejorar-atencion-gimnasios-llamador-entrenadores/cji9wlpmcig6bsoxoapl',
-    ],
+    images: ['v1755271078/cji9wlpmcig6bsoxoapl_hyhm7t'],
     categories: [routes.blog.children.llamadoresDeMeseros.category_key],
   },
   {
@@ -885,9 +881,7 @@ const llamadoresDeMeserosPosts = [
       rendered:
         '<p>Los Llamadores de Meseros: La Clave para Transformar el Servicio en Tu Restaurante La calidad en el servicio al cliente es un factor determinante para el éxito de cualquier restaurante. Los llamadores de meseros han emergido como una herramienta revolucionaria para agilizar la atención al cliente, reducir tiempos de espera y crear una experiencia satisfactoria&#8230;</p>\n',
     },
-    images: [
-      'v1747157482/website-v2/blog/llamadores-de-meseros/llamadores-meseros-esenciales-elevar-nivel-restaurante/ukbqtenmdkg9skitc8jt',
-    ],
+    images: ['v1755271074/ukbqtenmdkg9skitc8jt_gcgdk1'],
     categories: [routes.blog.children.llamadoresDeMeseros.category_key],
   },
   {
@@ -915,9 +909,7 @@ const llamadoresDeMeserosPosts = [
       rendered:
         '<p>La industria de la gastronomía es altamente competitiva y está en constante evolución. Los clientes ya no solo buscan una buena comida, sino una experiencia completa: rapidez, comodidad y atención de calidad. Uno de los principales desafíos en un restaurante es la comunicación entre los clientes y los meseros. ¿Cuántas veces un comensal ha intentado&#8230;</p>\n',
     },
-    images: [
-      'v1747157480/website-v2/blog/llamadores-de-meseros/llamador-de-meseros-realmente-necesario/pqyz7gyor9jska8me88f',
-    ],
+    images: ['v1755271075/pqyz7gyor9jska8me88f_dwboms'],
     categories: [routes.blog.children.llamadoresDeMeseros.category_key],
   },
   {
@@ -950,9 +942,7 @@ const llamadoresDeMeserosPosts = [
       rendered:
         '<p>La rapidez y organización en la atención al cliente son factores clave en restaurantes y eventos. En un mundo donde la inmediatez es fundamental, los comensales y asistentes buscan experiencias fluidas y sin demoras. Los largos tiempos de espera pueden afectar la satisfacción del cliente y, en eventos masivos, generar desorden e incomodidad. Para responder&#8230;</p>\n',
     },
-    images: [
-      'website-v2/blog/llamadores-de-meseros/timbre-inalambrico-para-restaurantes-como-revoluciona-el-servicio/h4hq06jramklidqixx2m',
-    ],
+    images: ['v1755271077/h4hq06jramklidqixx2m_gjfyys'],
     categories: [routes.blog.children.llamadoresDeMeseros.category_key],
   },
   /*
