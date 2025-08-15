@@ -38,6 +38,7 @@ export class ArticleSeeder {
       isPublished: article.isPublished,
       isPublishedInProduction: article.isPublishedInProduction,
       coverImage: article.coverImage || '',
+      coverImageAlt: cleanHtml(article.title),
       author: editorPrincipalUser,
       category: categories.find(
         (category) => category.category_key === article.categoryKey,
