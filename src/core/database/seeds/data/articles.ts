@@ -1670,41 +1670,6 @@ const turneroTurnoexpressPosts = [
     ],
     categories: [routes.blog.children.turneroTurnoexpress.category_key],
   },
-  /*
-  {
-    "id": ,
-    "date": "",
-    "modified": "",
-    "slug": "",
-    "current_link": `${routes.blog.children.turneroTurnoexpress.url}/como-mejorar-servicio-enfermeria-en-geriatricos`,
-    "previous_link": [
-        "/"
-    ],
-    "metadata": {
-        "title": "",
-        "description": "",
-        "keywords": [
-            "",
-        ]
-    },
-    "title": {
-        "rendered": ""
-    },
-    "content": {
-        "rendered": "",
-        "template_name": "/turnero-turnoexpress/",
-    },
-    "excerpt": {
-        "rendered": "",
-    },
-    "images": [
-        ""
-    ],
-    "categories": [
-      routes.blog.children.turneroTurnoexpress.category_key
-    ],
-  },
-*/
 ];
 
 const turneroTurnomasterPosts = [
