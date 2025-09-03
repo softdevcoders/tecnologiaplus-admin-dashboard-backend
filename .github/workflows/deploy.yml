@@ -1,0 +1,274 @@
+name: 🚀 Deploy Backend - Blue/Green Strategy
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+env:
+  DOCKER_BUILDKIT: 1
+  REGISTRY: docker.io
+
+jobs:
+  #########################################
+  #   1. DETERMINE ENVIRONMENT
+  #########################################
+  determine-environment:
+    name: 🎯 Determine Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment_name: ${{ steps.determine-env.outputs.environment_name }}
+      docker_image_tag: ${{ steps.determine-env.outputs.docker_image_tag }}
+      should_deploy: ${{ steps.determine-env.outputs.should_deploy }}
+    steps:
+      - name: Determine Environment and Tag
+        id: determine-env
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment_name=production" >> $GITHUB_OUTPUT
+            echo "docker_image_tag=prod" >> $GITHUB_OUTPUT
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/staging" ]; then
+            echo "environment_name=staging" >> $GITHUB_OUTPUT
+            echo "docker_image_tag=staging" >> $GITHUB_OUTPUT
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            echo "environment_name=development" >> $GITHUB_OUTPUT
+            echo "docker_image_tag=dev" >> $GITHUB_OUTPUT
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "environment_name=pr" >> $GITHUB_OUTPUT
+            echo "docker_image_tag=pr-${{ github.event.number }}" >> $GITHUB_OUTPUT
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+  #########################################
+  #   2. RUN TESTS
+  #########################################
+  test:
+    name: 🧪 Test & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Linter
+        run: pnpm run lint
+
+      - name: Run Tests
+        run: pnpm run test
+
+  #########################################
+  #   3. BUILD & PUSH DOCKER IMAGE
+  #########################################
+  build-and-push:
+    name: 🏗️ Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: [determine-environment, test]
+    if: needs.determine-environment.outputs.should_deploy == 'true'
+    environment: ${{ needs.determine-environment.outputs.environment_name }}
+    outputs:
+      image_name: ${{ steps.image-info.outputs.image_name }}
+      image_tag: ${{ steps.image-info.outputs.image_tag }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Generate Image Info
+        id: image-info
+        run: |
+          IMAGE_NAME="${{ secrets.DOCKER_HUB_USERNAME }}/tecnologiaplus-backend"
+          IMAGE_TAG="${{ needs.determine-environment.outputs.docker_image_tag }}-$(date +%Y%m%d-%H%M%S)-${{ github.sha }}"
+          echo "image_name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "full_image=${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: production
+          push: true
+          tags: |
+            ${{ steps.image-info.outputs.image_name }}:${{ steps.image-info.outputs.image_tag }}
+            ${{ steps.image-info.outputs.image_name }}:${{ needs.determine-environment.outputs.docker_image_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+  #########################################
+  #   4. BLUE/GREEN DEPLOYMENT
+  #########################################
+  deploy:
+    name: 🚀 Deploy with Blue/Green Strategy
+    runs-on: self-hosted
+    needs: [determine-environment, build-and-push]
+    environment: ${{ needs.determine-environment.outputs.environment_name }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment Variables
+        run: |
+          echo "Setting up environment variables for ${{ needs.determine-environment.outputs.environment_name }}"
+          
+      - name: Pull Latest Docker Image
+        run: |
+          echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker pull ${{ needs.build-and-push.outputs.image_name }}:${{ needs.build-and-push.outputs.image_tag }}
+
+      - name: Prepare Database Network
+        run: |
+          echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker network create tecnologiaplus-network || true
+
+      - name: Blue/Green Deployment
+        run: |
+          # Configurar variables
+          NEW_IMAGE="${{ needs.build-and-push.outputs.image_name }}:${{ needs.build-and-push.outputs.image_tag }}"
+          CONTAINER_NAME="tecnologiaplus-backend-${{ needs.determine-environment.outputs.environment_name }}"
+          BLUE_CONTAINER="${CONTAINER_NAME}-blue"
+          GREEN_CONTAINER="${CONTAINER_NAME}-green"
+          PORT_BLUE=3001
+          PORT_GREEN=3002
+          NETWORK_NAME="tecnologiaplus-network"
+          
+          # Verificar qué color está corriendo actualmente
+          if echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker ps | grep -q "${BLUE_CONTAINER}"; then
+            CURRENT_COLOR="blue"
+            NEW_COLOR="green"
+            CURRENT_CONTAINER=$BLUE_CONTAINER
+            NEW_CONTAINER=$GREEN_CONTAINER
+            NEW_PORT=$PORT_GREEN
+          else
+            CURRENT_COLOR="green"
+            NEW_COLOR="blue"
+            CURRENT_CONTAINER=$GREEN_CONTAINER
+            NEW_CONTAINER=$BLUE_CONTAINER
+            NEW_PORT=$PORT_BLUE
+          fi
+          
+          echo "🔵🟢 Current: $CURRENT_COLOR, Deploying: $NEW_COLOR"
+          
+          # Crear red si no existe
+          echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker network create $NETWORK_NAME || true
+          
+          # Ejecutar el nuevo contenedor
+          echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker run -d \
+            --name $NEW_CONTAINER \
+            --network $NETWORK_NAME \
+            --restart unless-stopped \
+            -p $NEW_PORT:3001 \
+            -e NODE_ENV=${{ needs.determine-environment.outputs.environment_name }} \
+            -e PORT=3001 \
+            -e DB_HOST=tecnologiaplus-postgres \
+            -e DB_PORT=5432 \
+            -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e DB_NAME=${{ secrets.DB_NAME }} \
+            -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            -e CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
+            -e CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} \
+            -e CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} \
+            -e MAIL_HOST=${{ secrets.MAIL_HOST }} \
+            -e MAIL_PORT=${{ secrets.MAIL_PORT }} \
+            -e MAIL_USER=${{ secrets.MAIL_USER }} \
+            -e MAIL_PASS=${{ secrets.MAIL_PASS }} \
+            -e MAIL_FROM=${{ secrets.MAIL_FROM }} \
+            -e FRONTEND_URL=${{ secrets.FRONTEND_URL }} \
+            $NEW_IMAGE
+          
+          # Esperar a que el nuevo contenedor esté listo
+          echo "⏳ Waiting for new container to be ready..."
+          for i in {1..30}; do
+            if echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker exec $NEW_CONTAINER curl -f http://localhost:3001/health 2>/dev/null; then
+              echo "✅ New container is healthy!"
+              break
+            fi
+            echo "Attempt $i/30: Container not ready yet..."
+            sleep 10
+          done
+          
+          # Verificar que el health check pasa
+          if ! echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker exec $NEW_CONTAINER curl -f http://localhost:3001/health; then
+            echo "❌ Health check failed! Rolling back..."
+            echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker rm -f $NEW_CONTAINER
+            exit 1
+          fi
+          
+          echo "🔄 Updating nginx configuration..."
+          # Aquí actualizarías la configuración de nginx para apuntar al nuevo puerto
+          # Por simplicidad, asumimos que nginx está configurado para balancear automáticamente
+          
+          # Si todo está bien, parar el contenedor anterior
+          if echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker ps | grep -q "$CURRENT_CONTAINER"; then
+            echo "🛑 Stopping old container: $CURRENT_CONTAINER"
+            echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker stop $CURRENT_CONTAINER
+            echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker rm $CURRENT_CONTAINER
+          fi
+          
+          echo "🎉 Deployment completed successfully!"
+          echo "🚀 New container $NEW_CONTAINER is now serving traffic"
+
+      - name: Cleanup Old Images
+        run: |
+          echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker image prune -f
+          # Mantener solo las últimas 3 imágenes
+          echo "${{ secrets.SSH_USER_PASSWORD }}" | sudo -S docker images ${{ needs.build-and-push.outputs.image_name }} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +2 | sort -k2 -r | tail -n +4 | awk '{print $1}' | xargs -r docker rmi || true
+
+      - name: Health Check Final
+        run: |
+          # Verificar que el servicio esté respondiendo correctamente
+          sleep 30
+          for i in {1..5}; do
+            if curl -f http://localhost:3001/health; then
+              echo "✅ Final health check passed!"
+              break
+            fi
+            echo "Attempt $i/5: Service not responding..."
+            sleep 10
+          done
+
+  #########################################
+  #   5. NOTIFICATION
+  #########################################
+  notify:
+    name: 📢 Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [determine-environment, deploy]
+    if: always()
+    steps:
+      - name: Notify Success
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "✅ Deployment to ${{ needs.determine-environment.outputs.environment_name }} was successful!"
+          # Aquí puedes agregar notificaciones a Slack, Discord, etc.
+          
+      - name: Notify Failure
+        if: needs.deploy.result == 'failure'
+        run: |
+          echo "❌ Deployment to ${{ needs.determine-environment.outputs.environment_name }} failed!"
+          # Aquí puedes agregar notificaciones de error

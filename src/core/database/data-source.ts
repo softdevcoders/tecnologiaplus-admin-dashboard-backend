@@ -15,8 +15,14 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'blog_db',
-  entities: [User, Article, Category, Tag],
-  migrations: ['src/core/database/migrations/*.ts'],
+  entities: process.env.NODE_ENV === 'production' 
+    ? ['dist/**/*.entity.js']
+    : [User, Article, Category, Tag],
+  migrations: [
+    process.env.NODE_ENV === 'production' 
+      ? 'dist/core/database/migrations/*.js'
+      : 'src/core/database/migrations/*.ts'
+  ],
   synchronize: false,
   logging: true, // Enable logging to see SQL queries
 };

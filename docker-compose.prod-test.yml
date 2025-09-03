@@ -1,0 +1,107 @@
+###################################################################################
+#                                                                                 #
+#    🐳 DOCKER COMPOSE - PRODUCTION BUILD TEST                                   #
+#    Test production builds locally before deployment                            #
+#                                                                                 #
+###################################################################################
+
+version: '3.8'
+
+services:
+  #==================================================================================
+  #  DATABASE - PostgreSQL for production testing
+  #==================================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: tecnologiaplus-postgres-prod-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-blog_db}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "5500:5432"  # Puerto específico para testing de producción
+    volumes:
+      - postgres_prod_test_data:/var/lib/postgresql/data
+    networks:
+      - tecnologiaplus-prod-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-blog_db}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  #==================================================================================
+  #  BACKEND - Production build for testing
+  #==================================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production  # 🎯 Usar target de producción
+      args:
+        # Build args si los necesitas
+        - NODE_ENV=production
+    container_name: tecnologiaplus-backend-prod-test
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-blog_db}
+      JWT_SECRET: ${JWT_SECRET:-prod-test-jwt-secret-change-this}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-your-cloudinary-cloud-name}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-your-cloudinary-api-key}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-your-cloudinary-api-secret}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASS: ${MAIL_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-noreply@tecnologiaplus.com}
+    ports:
+      - "3002:3000"  # Puerto específico para testing de producción
+    networks:
+      - tecnologiaplus-prod-test-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # 🔄 Comando con migraciones automáticas
+    command: >
+      sh -c "
+        echo '🔗 Waiting for PostgreSQL...' &&
+        while ! nc -z postgres 5432; do sleep 1; done &&
+        echo '✅ PostgreSQL is ready!' &&
+        echo '🔄 Running migrations...' &&
+        pnpm run migration:run:prod &&
+        echo '🌱 Running seeds...' &&
+        pnpm run seed:prod &&
+        echo '🚀 Starting production application...' &&
+        pnpm run start:prod
+      "
+    # Health check para verificar que el servicio está funcionando
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s  # Más tiempo para migraciones
+
+
+#==================================================================================
+#  VOLUMES - Persistent data for testing
+#==================================================================================
+volumes:
+  postgres_prod_test_data:
+    driver: local
+
+#==================================================================================
+#  NETWORKS - Isolated production testing network
+#==================================================================================
+networks:
+  tecnologiaplus-prod-test-network:
+    driver: bridge

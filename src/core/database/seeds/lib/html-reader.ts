@@ -25,7 +25,13 @@ const replaceLinksInHtml = (htmlContent: string) => {
 export const htmlReader = (filePath: string) => {
   // Remove leading slash if present
   const cleanPath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
-  const absolutePath = `./src/core/database/seeds/data/articles/html/${cleanPath}`;
+  
+  // Use different paths based on environment
+  const basePath = process.env.NODE_ENV === 'production' 
+    ? './dist/core/database/seeds/data/articles/html'
+    : './src/core/database/seeds/data/articles/html';
+  
+  const absolutePath = `${basePath}/${cleanPath}`;
 
   if (!fs.existsSync(absolutePath)) {
     throw new Error(`File not found: ${absolutePath}`);

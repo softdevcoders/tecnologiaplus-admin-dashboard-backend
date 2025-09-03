@@ -1,0 +1,97 @@
+###################################################################################
+#                                                                                 #
+#    🐳 DOCKER COMPOSE - DEVELOPMENT ONLY                                        #
+#    Simple setup for local development with hot reload                          #
+#                                                                                 #
+###################################################################################
+
+version: '3.8'
+
+services:
+  #==================================================================================
+  #  DATABASE - PostgreSQL for development
+  #==================================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: tecnologiaplus-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-blog_db}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - tecnologiaplus-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-blog_db}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  #==================================================================================
+  #  BACKEND - NestJS with hot reload
+  #==================================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: tecnologiaplus-backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-blog_db}
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-your-cloudinary-cloud-name}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-your-cloudinary-api-key}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-your-cloudinary-api-secret}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    ports:
+      - "3001:3000"
+    volumes:
+      # Hot reload - mount source code (read-write for development)
+      - ./src:/app/src
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./nest-cli.json:/app/nest-cli.json
+      # Exclude node_modules to avoid conflicts
+      - /app/node_modules
+    networks:
+      - tecnologiaplus-dev-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo 'Esperando a que PostgreSQL esté listo...' &&
+        sleep 10 &&
+        echo 'Ejecutando migraciones...' &&
+        pnpm run migration:run &&
+        echo 'Ejecutando seeds...' &&
+        pnpm run seed &&
+        echo 'Iniciando aplicación...' &&
+        pnpm run start:dev
+      "
+
+#==================================================================================
+#  VOLUMES - Persistent data
+#==================================================================================
+volumes:
+  postgres_dev_data:
+    driver: local
+
+#==================================================================================
+#  NETWORKS - Isolated development network
+#==================================================================================
+networks:
+  tecnologiaplus-dev-network:
+    driver: bridge

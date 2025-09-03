@@ -11,6 +11,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { CloudinaryModule } from './core/cloudinary/cloudinary.module';
 import { ImagesModule } from './modules/images/images.module';
+import { HealthModule } from './core/health/health.module';
 
 @Module({
   imports: [
@@ -18,8 +19,13 @@ import { ImagesModule } from './modules/images/images.module';
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: join(process.cwd(), 'src', 'core', 'i18n'),
-        watch: true,
+        path: join(
+          process.cwd(),
+          process.env.NODE_ENV === 'production'
+            ? 'dist/core/i18n'
+            : 'src/core/i18n',
+        ),
+        watch: process.env.NODE_ENV !== 'production',
       },
       loader: I18nJsonLoader,
       resolvers: [new HeaderResolver(['x-lang', 'accept-language'])],
@@ -41,6 +47,7 @@ import { ImagesModule } from './modules/images/images.module';
     TagsModule,
     CloudinaryModule,
     ImagesModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],
