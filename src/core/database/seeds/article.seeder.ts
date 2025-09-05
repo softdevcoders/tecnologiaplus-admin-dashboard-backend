@@ -11,6 +11,13 @@ export class ArticleSeeder {
     const categoryRepository = dataSource.getRepository(Category);
     const articleRepository = dataSource.getRepository(Article);
 
+    const articlesAlreadySeeded = await articleRepository.find();
+
+    if (articlesAlreadySeeded.length > 0) {
+      console.log('Articles already seeded');
+      return;
+    }
+
     // Get admin user
     const editorPrincipalUser = await userRepository.findOne({
       where: { email: 'editor@tecnologiaplus.com' },

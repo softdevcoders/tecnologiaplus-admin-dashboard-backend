@@ -6,6 +6,13 @@ export class CategorySeeder {
   static async execute(): Promise<void> {
     const categoryRepository = dataSource.getRepository(Category);
 
+    const categoriesAlreadySeeded = await categoryRepository.find();
+
+    if (categoriesAlreadySeeded.length > 0) {
+      console.log('Categories already seeded');
+      return;
+    }
+
     await categoryRepository.save(categories);
   }
 }

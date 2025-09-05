@@ -7,6 +7,13 @@ export class UserSeeder {
     const userRepository = dataSource.getRepository(User);
     const usersData = await users();
 
+    const usersAlreadySeeded = await userRepository.find();
+
+    if (usersAlreadySeeded.length > 0) {
+      console.log('Users already seeded');
+      return;
+    }
+
     for (const userData of usersData) {
       const existingUser = await userRepository.findOne({
         where: { email: userData.email },
